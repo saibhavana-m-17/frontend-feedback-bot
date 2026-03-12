@@ -1,0 +1,74 @@
+<div class="chat-container">
+  <!-- Chat Header -->
+  <div class="chat-header">
+    <h1>Developer Feedback Bot</h1>
+  </div>
+
+  <!-- Chat Interface -->
+  <div class="chat-interface">
+    <!-- Message Area -->
+    <div class="message-area">
+      <div class="message-area-inner">
+        <div *ngFor="let message of messages" 
+             class="message-wrapper" 
+             [class.user-message]="message.sender === 'developer'" 
+             [class.assistant-message]="message.sender === 'bot'">
+          <div class="message-card">
+            <!-- Message Header -->
+            <div class="message-header">
+              <span class="role-label">{{ message.sender === 'developer' ? 'You' : 'Assistant' }}</span>
+              <span class="timestamp">{{ message.timestamp | date:'short' }}</span>
+            </div>
+
+            <!-- Message Content -->
+            <div class="message-content">
+              {{ message.text }}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Loading Indicator -->
+        <div *ngIf="isLoading" class="message-wrapper assistant-message">
+          <div class="message-card">
+            <div class="message-header">
+              <span class="role-label">Assistant</span>
+            </div>
+            <div class="message-content">
+              <div class="streaming-indicator">
+                <span class="streaming-status-text">
+                  Thinking<span class="ellipsis" aria-hidden="true"></span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="input-area-wrapper">
+      <div class="input-area">
+        <div class="message-input-field">
+          <div *ngIf="errorMessage" class="error-message">
+            {{ errorMessage }}
+          </div>
+          <textarea 
+  #messageInput
+  [(ngModel)]="userInput"
+  (keydown.enter)="onEnterKey($any($event))"
+  placeholder="Type your message..."
+  [disabled]="isLoading"
+  class="message-input"
+  rows="1"></textarea>
+
+        </div>
+        <button 
+          (click)="sendMessage()"
+          [disabled]="isLoading || !userInput.trim()"
+          class="send-button">
+          {{ isLoading ? 'Sending...' : 'Send' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

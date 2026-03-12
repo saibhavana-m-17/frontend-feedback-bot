@@ -1,0 +1,231 @@
+/* Chat Component Styles — AccuShield Theme */
+
+.chat-container {
+  max-width: 900px;
+  margin: 0 auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--surface-bg);
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.chat-header {
+  background-color: #1976D2;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.chat-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.loading-container,
+.error-container,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 32px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.chat-interface {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.message-area {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  width: 100%;
+}
+
+.message-area-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px 24px;
+  box-sizing: border-box;
+}
+
+.message-wrapper {
+  display: flex;
+  max-width: 80%;
+}
+
+.message-wrapper.user-message {
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.message-wrapper.assistant-message {
+  align-self: flex-start;
+  margin-right: auto;
+}
+
+.message-card {
+  width: 100%;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* User bubble — gentle teal tint with AccuShield brand accent */
+.user-message .message-card {
+  background-color: #E0F2F1;
+  color: #1A2B3C;
+  border-left: 3px solid #2E7D6F;
+}
+
+/* Assistant bubble — cool blue-gray */
+.assistant-message .message-card {
+  background-color: #F4F8FB;
+  color: #1A2B3C;
+  border-left: 3px solid #546A7F;
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.role-label {
+  font-weight: 500;
+  flex: 1;
+}
+
+.timestamp {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.message-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.streaming-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+}
+
+.streaming-status-text {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.ellipsis::after {
+  content: '';
+  animation: ellipsis-dots 1.5s steps(3, end) infinite;
+  display: inline-block;
+  width: 1.2em;
+  text-align: left;
+}
+
+@keyframes ellipsis-dots {
+  0%   { content: '.'; }
+  33%  { content: '..'; }
+  66%  { content: '...'; }
+  100% { content: ''; }
+}
+
+.input-area-wrapper {
+  border-top: 1px solid var(--border-subtle);
+  background-color: var(--surface-card);
+  flex-shrink: 0;
+}
+
+.input-area {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.message-input-field {
+  flex: 1;
+}
+
+.message-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  resize: vertical;
+  min-height: 44px;
+  max-height: 200px;
+}
+
+.message-input:focus {
+  border-color: #1976D2;
+}
+
+.message-input:disabled {
+  background-color: var(--surface-bg);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.send-button {
+  align-self: flex-end;
+  padding: 12px 24px;
+  background-color: #1976D2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  height: 44px;
+}
+
+.send-button:hover:not(:disabled) {
+  background-color: #1565C0;
+}
+
+.send-button:disabled {
+  background-color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: var(--risk-high);
+  font-size: 14px;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  background-color: var(--risk-high-bg);
+  border-radius: 4px;
+  border-left: 3px solid var(--risk-high);
+}
