@@ -229,3 +229,103 @@
   border-radius: 4px;
   border-left: 3px solid var(--risk-high);
 }
+
+/* File Picker Button */
+.file-picker-btn {
+  align-self: flex-end;
+  padding: 8px 12px;
+  background-color: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.file-picker-btn:hover:not(:disabled) {
+  background-color: var(--surface-bg);
+}
+
+.file-picker-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* File Preview */
+.file-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  background-color: var(--surface-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.file-preview-name {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.file-preview-size {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.file-preview-remove {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.file-preview-remove:hover {
+  background-color: var(--risk-high-bg);
+  color: var(--risk-high);
+}
+
+/* Attachment display in messages */
+.message-attachment {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: rgba(0, 0, 0, 0.04);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.attachment-link {
+  color: #1976D2;
+  text-decoration: none;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-link:hover {
+  text-decoration: underline;
+}
+
+.attachment-size {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  font-size: 12px;
+}
