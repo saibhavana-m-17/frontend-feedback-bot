@@ -2,10 +2,19 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface Attachment {
+  originalFilename: string;
+  storedFilename: string;
+  fileSize: number;
+  mimeType: string;
+}
+
 export interface Message {
   sender: 'developer' | 'bot';
   text: string;
   timestamp: string;
+  attachment?: Attachment;
+  attachments?: Attachment[];
 }
 
 export interface Conversation {
@@ -37,5 +46,18 @@ export class ApiService {
       `${this.apiUrl}/api/feedback/conversations/${conversationId}/messages`,
       { text }
     );
+  }
+  sendMessageWithFiles(conversationId: string, text: string, files: File[]): Observable<{ message: Message; conversationId: string }> {
+    const formData = new FormData();
+    files.forEach(file => formData.append('files', file));
+    formData.append('text', text);
+    return this.http.post<{ message: Message; conversationId: string }>(
+      `${this.apiUrl}/api/feedback/conversations/${conversationId}/messages`,
+      formData
+    );
+  }
+
+  getFileUrl(storedFilename: string): string {
+    return `${this.apiUrl}/api/feedback/files/${storedFilename}`;
   }
 }

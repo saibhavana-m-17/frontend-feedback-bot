@@ -12,6 +12,7 @@ import { ApiService, type Message } from '../../services/api.service';
 })
 export class ChatComponent implements OnInit {
   @ViewChild('messageInput') messageInput!: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   
   messages: Message[] = [];
   userInput = '';
@@ -19,11 +20,13 @@ export class ChatComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
   conversationEnded = false;
+  selectedFiles: File[] = [];
 
   private readonly STORAGE_KEY = 'feedback_bot_conversation_id';
+  private readonly MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
   constructor(
-    private apiService: ApiService,
+    public apiService: ApiService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -57,64 +60,97 @@ export class ChatComponent implements OnInit {
   }
 
   sendMessage(): void {
-    const text = this.userInput.trim();
-    
-    if (!text) {
-      this.errorMessage = 'Message cannot be empty';
-      return;
-    }
+      const text = this.userInput.trim();
 
-    if (this.conversationEnded) {
-      this.errorMessage = 'This conversation has ended. Starting a new one...';
-      localStorage.removeItem(this.STORAGE_KEY);
-      this.startConversation();
-      return;
-    }
-
-    this.errorMessage = '';
-    this.isLoading = true;
-
-    const userMessage: Message = {
-      sender: 'developer',
-      text: text,
-      timestamp: new Date().toISOString()
-    };
-    this.messages.push(userMessage);
-    this.userInput = '';
-
-    this.apiService.sendMessage(this.conversationId, text).subscribe({
-      next: (response) => {
-        this.messages.push(response.message);
-        this.conversationId = response.conversationId;
-        localStorage.setItem(this.STORAGE_KEY, response.conversationId);
-        
-        if (response.message.text.includes("That's really helpful — thank you for taking the time")) {
-          this.conversationEnded = true;
-          localStorage.removeItem(this.STORAGE_KEY);
-        }
-        
-        this.isLoading = false;
-        this.cdr.detectChanges();
-        this.scrollToBottom();
-        this.focusInput();
-      },
-      error: (error) => {
-        if (error.error?.message?.includes('has already ended')) {
-          this.errorMessage = 'This conversation has ended. Starting a new one...';
-          this.conversationEnded = true;
-          localStorage.removeItem(this.STORAGE_KEY);
-          setTimeout(() => {
-            this.startConversation();
-          }, 2000);
-        } else {
-          this.errorMessage = 'Failed to send message. Please try again.';
-        }
-        this.isLoading = false;
-        this.cdr.detectChanges();
-        this.focusInput();
-        console.error('Error sending message:', error);
+      if (!text && this.selectedFiles.length === 0) {
+        this.errorMessage = 'Message cannot be empty';
+        return;
       }
-    });
+
+      if (this.conversationEnded) {
+        // After conversation ends, still allow sending messages (e.g. file uploads)
+        // Only a page refresh starts a new conversation
+      }
+
+      this.errorMessage = '';
+      this.isLoading = true;
+
+      const userMessage: Message = {
+        sender: 'developer',
+        text: text || this.selectedFiles.map(f => f.name).join(', '),
+        timestamp: new Date().toISOString(),
+        ...(this.selectedFiles.length > 0 && {
+          attachments: this.selectedFiles.map(f => ({
+            originalFilename: f.name,
+            storedFilename: '',
+            fileSize: f.size,
+            mimeType: f.type || 'application/octet-stream',
+          }))
+        }),
+      };
+      this.messages.push(userMessage);
+      this.userInput = '';
+      this.cdr.detectChanges();
+      this.scrollToBottom();
+
+      const request$ = this.selectedFiles.length > 0
+        ? this.apiService.sendMessageWithFiles(this.conversationId, text, this.selectedFiles)
+        : this.apiService.sendMessage(this.conversationId, text);
+
+      request$.subscribe({
+        next: (response) => {
+          this.messages.push(response.message);
+          this.conversationId = response.conversationId;
+          localStorage.setItem(this.STORAGE_KEY, response.conversationId);
+
+          this.removeFile();
+          this.isLoading = false;
+          this.cdr.detectChanges();
+          this.scrollToBottom();
+          this.focusInput();
+        },
+        error: (error) => {
+          this.errorMessage = 'Failed to send message. Please try again.';
+          this.isLoading = false;
+          this.cdr.detectChanges();
+          this.focusInput();
+          console.error('Error sending message:', error);
+        }
+      });
+    }
+
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      for (let i = 0; i < input.files.length; i++) {
+        const file = input.files[i];
+        if (file.size > this.MAX_FILE_SIZE) {
+          this.errorMessage = `File "${file.name}" exceeds the 10 MB size limit`;
+          continue;
+        }
+        this.selectedFiles.push(file);
+      }
+      this.errorMessage = '';
+      input.value = '';
+    }
+  }
+
+  removeFile(index?: number): void {
+    if (index !== undefined) {
+      this.selectedFiles.splice(index, 1);
+    } else {
+      this.selectedFiles = [];
+    }
+    if (this.fileInput?.nativeElement) {
+      this.fileInput.nativeElement.value = '';
+    }
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 
   onEnterKey(event: KeyboardEvent): void {

@@ -23,6 +23,28 @@
             <!-- Message Content -->
             <div class="message-content">
               {{ message.text }}
+              <!-- Attachment (single - legacy) -->
+              <div *ngIf="message.attachment" class="message-attachment">
+                <a [href]="apiService.getFileUrl(message.attachment.storedFilename)" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   class="attachment-link">
+                  📎 {{ message.attachment.originalFilename }}
+                </a>
+                <span class="attachment-size">{{ formatFileSize(message.attachment.fileSize) }}</span>
+              </div>
+              <!-- Attachments (multiple) -->
+              <div *ngIf="message.attachments && message.attachments.length > 0" class="message-attachments">
+                <div *ngFor="let att of message.attachments" class="message-attachment">
+                  <a [href]="apiService.getFileUrl(att.storedFilename)" 
+                     target="_blank" 
+                     rel="noopener noreferrer"
+                     class="attachment-link">
+                    📎 {{ att.originalFilename }}
+                  </a>
+                  <span class="attachment-size">{{ formatFileSize(att.fileSize) }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -52,6 +74,11 @@
           <div *ngIf="errorMessage" class="error-message">
             {{ errorMessage }}
           </div>
+          <div *ngFor="let file of selectedFiles; let i = index" class="file-preview">
+            <span class="file-preview-name">{{ file.name }}</span>
+            <span class="file-preview-size">{{ formatFileSize(file.size) }}</span>
+            <button class="file-preview-remove" (click)="removeFile(i)" aria-label="Remove file">✕</button>
+          </div>
           <textarea 
   #messageInput
   [(ngModel)]="userInput"
@@ -62,9 +89,17 @@
   rows="1"></textarea>
 
         </div>
+        <input type="file" #fileInput (change)="onFileSelected($event)" multiple hidden>
+        <button
+          class="file-picker-btn"
+          (click)="fileInput.click()"
+          [disabled]="conversationEnded || isLoading"
+          aria-label="Attach file">
+          📎
+        </button>
         <button 
           (click)="sendMessage()"
-          [disabled]="isLoading || !userInput.trim()"
+          [disabled]="isLoading || (!userInput.trim() && selectedFiles.length === 0)"
           class="send-button">
           {{ isLoading ? 'Sending...' : 'Send' }}
         </button>
